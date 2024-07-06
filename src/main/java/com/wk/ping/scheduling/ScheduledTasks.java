@@ -40,6 +40,7 @@ public class ScheduledTasks {
             link.setLastPingTime(LocalDateTime.now());
             linkService.updateLink(link);
         }
+        System.out.println("test log 1");
         System.out.println("Ping ended");
     }
 
