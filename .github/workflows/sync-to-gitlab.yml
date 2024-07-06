@@ -1,0 +1,25 @@
+name: Sync to GitLab
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Sync to GitLab
+        env:
+          GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          git remote add gitlab https://oauth2:$GITLAB_TOKEN@gitlab.com/monitoring-app1/wkping-backend.git/
+          git config --global user.name "$GITLAB_USERNAME"
+          git config --global user.email "krahul.view@gmail.com"
+          git push gitlab HEAD:master --force
