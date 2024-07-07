@@ -13,8 +13,8 @@ services:
       POSTGRES_PASSWORD: postgres
 
   spring-boot-app:
-    image:  wkping-spring-boot-app:v2
-    container_name: wkping-bckend-app
+    image:  registry.gitlab.com/monitoring-app1/wkping-backend:latest
+    container_name: wkping-backend-app
     build:
       context: .
       dockerfile: Dockerfile

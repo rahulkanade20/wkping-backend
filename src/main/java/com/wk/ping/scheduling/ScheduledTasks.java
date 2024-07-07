@@ -32,6 +32,7 @@ public class ScheduledTasks {
     public void updatePingTime() {
         List<Link> allLinks = linkService.getAllLinks();
         System.out.println("Ping started");
+        System.out.println("TESTING CI 1");
         for(Link link : allLinks) {
             String url = link.getLink();
 //            int statusCode = Ping(url);
