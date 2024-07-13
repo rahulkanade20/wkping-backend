@@ -27,6 +27,7 @@ public class HttpRequestService {
     }
 
     public void makeRequest(Link link) {
+        long requestStartTime = System.currentTimeMillis() / 1000;
         logger.info("sending ping request, multithreaded version");
         String l = link.getLink();
         logger.info("Link Object is -> " + link.toString());
@@ -42,5 +43,7 @@ public class HttpRequestService {
         link.setStatus_code(responseCode);
         link.setLastPingTime(LocalDateTime.now());
         linkService.updateLink(link);
+        long requestEndTime = System.currentTimeMillis() / 1000;
+        logger.info("Total time required by thread is: " + (requestEndTime - requestStartTime));
     }
 }
