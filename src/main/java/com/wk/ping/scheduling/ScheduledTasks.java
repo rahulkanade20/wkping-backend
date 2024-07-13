@@ -32,7 +32,7 @@ public class ScheduledTasks {
         this.executorService = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
     }
 
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRate = 20000)
     public void updatePingTimeMultiThreaded() {
         List<Link> allLinks = linkService.getAllLinks();
         for(Link link : allLinks) {
@@ -45,19 +45,20 @@ public class ScheduledTasks {
                 e.printStackTrace();
             }
         }
-        executorService.shutdown();
-        try {
-            if(!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } finally {
-            if(!executorService.isTerminated()) {
-                log.warn("Some threads/tasks not yet terminated, executing force shutdown");
-            }
-            executorService.shutdownNow();
-        }
+        log.info("ALL REQUESTS DONE");
+//        executorService.shutdown();
+//        try {
+//            if(!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+//                executorService.shutdownNow();
+//            }
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//        } finally {
+//            if(!executorService.isTerminated()) {
+//                log.warn("Some threads/tasks not yet terminated, executing force shutdown");
+//            }
+//            executorService.shutdownNow();
+//        }
     }
 
 //    @Scheduled(fixedRate = 20000)
