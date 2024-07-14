@@ -39,9 +39,9 @@ public class DashBoardController {
 
     @GetMapping("")
     public List<UIData> fetchAllData() {
-        long requestStartTime = System.currentTimeMillis() / 1000;
+        long requestStartTime = System.currentTimeMillis();
         List<Link> allLinks = linkService.getAllLinks();
-        long requestEndTime = System.currentTimeMillis() / 1000;
+        long requestEndTime = System.currentTimeMillis();
         logger.info("Total time required for fetching all data for dashboard: " + (requestEndTime - requestStartTime));
         List<UIData> data = new ArrayList<>();
         for(Link link : allLinks) {

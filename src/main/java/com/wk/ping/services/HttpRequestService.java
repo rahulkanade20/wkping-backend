@@ -27,7 +27,7 @@ public class HttpRequestService {
     }
 
     public void makeRequest(Link link) {
-        long requestStartTime = System.currentTimeMillis() / 1000;
+        long requestStartTime = System.currentTimeMillis();
         logger.info("sending ping request, multithreaded version");
         String l = link.getLink();
         logger.info("Link Object is -> " + link.toString());
@@ -35,15 +35,19 @@ public class HttpRequestService {
         int responseCode;
         try {
             response = restTemplate.exchange(l, HttpMethod.GET, null, String.class);
+            logger.info("Id is " + link.getId() + " | " + "url is " + link.getLink() + " | " + "status is " + response.getStatusCode().value());
             responseCode = response.getStatusCode().value();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             System.out.println("Catch block" + e.getStatusCode().value());
+            logger.error("Error while making call to url " + e.getMessage());
             responseCode = e.getStatusCode().value();
         }
+        logger.info("Out of restTemplate logic");
         link.setStatus_code(responseCode);
         link.setLastPingTime(LocalDateTime.now());
         linkService.updateLink(link);
-        long requestEndTime = System.currentTimeMillis() / 1000;
+        logger.info("Updation done");
+        long requestEndTime = System.currentTimeMillis();
         logger.info("Total time required by thread is: " + (requestEndTime - requestStartTime));
     }
 }
