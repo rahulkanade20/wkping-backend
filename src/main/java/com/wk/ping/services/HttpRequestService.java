@@ -33,8 +33,9 @@ public class HttpRequestService {
         logger.info("Link Object is -> " + link.toString());
         ResponseEntity<String> response;
         int responseCode;
-        logger.info("Id is " + link.getId() + "just before try block");
+        logger.info("Id is " + link.getId() + " just before try block");
         try {
+            logger.info("Id is " + link.getId() + " inside try just before rest template call");
             response = restTemplate.exchange(l, HttpMethod.GET, null, String.class);
             logger.info("Id is " + link.getId() + " | " + "url is " + link.getLink() + " | " + "status is " + response.getStatusCode().value());
             responseCode = response.getStatusCode().value();
