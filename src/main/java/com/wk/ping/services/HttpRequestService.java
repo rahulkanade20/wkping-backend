@@ -33,21 +33,22 @@ public class HttpRequestService {
         logger.info("Link Object is -> " + link.toString());
         ResponseEntity<String> response;
         int responseCode;
+        logger.info("Id is " + link.getId() + "just before try block");
         try {
             response = restTemplate.exchange(l, HttpMethod.GET, null, String.class);
             logger.info("Id is " + link.getId() + " | " + "url is " + link.getLink() + " | " + "status is " + response.getStatusCode().value());
             responseCode = response.getStatusCode().value();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            System.out.println("Catch block" + e.getStatusCode().value());
+            System.out.println("Id is " + link.getId() + "Catch block" + e.getStatusCode().value());
             logger.error("Error while making call to url " + e.getMessage());
             responseCode = e.getStatusCode().value();
         }
-        logger.info("Out of restTemplate logic");
+        logger.info("Id is " + link.getId() + "Out of restTemplate logic");
         link.setStatus_code(responseCode);
         link.setLastPingTime(LocalDateTime.now());
         linkService.updateLink(link);
-        logger.info("Updation done");
+        logger.info("Id is " + link.getId() + "Updation done");
         long requestEndTime = System.currentTimeMillis();
-        logger.info("Total time required by thread is: " + (requestEndTime - requestStartTime));
+        logger.info("Id is " + link.getId() + "Total time required by thread is: " + (requestEndTime - requestStartTime));
     }
 }
