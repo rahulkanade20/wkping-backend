@@ -29,7 +29,7 @@ public class ScheduledTasks {
     public ScheduledTasks(LinkService linkService, HttpRequestService httpRequestService) {
         this.linkService = linkService;
         this.httpRequestService = httpRequestService;
-        this.executorService = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
+        this.executorService = new ThreadPoolExecutor(50, 50, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
     }
 
     @Scheduled(fixedRate = 120000)
