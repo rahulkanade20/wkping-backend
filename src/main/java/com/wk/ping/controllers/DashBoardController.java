@@ -9,6 +9,8 @@ import com.wk.ping.models.Link;
 import com.wk.ping.models.Team;
 import com.wk.ping.services.LinkService;
 import com.wk.ping.services.TeamService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value="/fetchData")
 @CrossOrigin(origins = "http://localhost:3000/")
 public class DashBoardController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DashBoardController.class);
 
     private final LinkService linkService;
 
@@ -35,7 +39,10 @@ public class DashBoardController {
 
     @GetMapping("")
     public List<UIData> fetchAllData() {
+        long requestStartTime = System.currentTimeMillis() / 1000;
         List<Link> allLinks = linkService.getAllLinks();
+        long requestEndTime = System.currentTimeMillis() / 1000;
+        logger.info("Total time required for fetching all data for dashboard: " + (requestEndTime - requestStartTime));
         List<UIData> data = new ArrayList<>();
         for(Link link : allLinks) {
             String teamName = "";

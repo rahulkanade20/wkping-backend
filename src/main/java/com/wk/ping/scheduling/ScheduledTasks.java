@@ -32,7 +32,7 @@ public class ScheduledTasks {
         this.executorService = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
     }
 
-    @Scheduled(fixedRate = 20000)
+    @Scheduled(fixedRate = 120000)
     public void updatePingTimeMultiThreaded() {
         List<Link> allLinks = linkService.getAllLinks();
         for(Link link : allLinks) {
