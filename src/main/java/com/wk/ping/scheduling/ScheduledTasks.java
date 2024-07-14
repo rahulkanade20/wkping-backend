@@ -24,12 +24,13 @@ public class ScheduledTasks {
 
     private final HttpRequestService httpRequestService;
 
-    private final ExecutorService executorService;
+    private final ThreadPoolExecutor executorService;
 
     public ScheduledTasks(LinkService linkService, HttpRequestService httpRequestService) {
+        log.info("ScheduledTasksConstructorCalled");
         this.linkService = linkService;
         this.httpRequestService = httpRequestService;
-        this.executorService = new ThreadPoolExecutor(50, 50, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
+        this.executorService = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
     }
 
     @Scheduled(fixedRate = 120000)
@@ -39,12 +40,28 @@ public class ScheduledTasks {
             try {
                 executorService.submit(() -> {
                     httpRequestService.makeRequest(link);
+                    log.info("end of runnable task");
                 });
             } catch(RejectedExecutionException e) {
                 log.error("Task rejected. All threads busy, waiting queue full " + "Rejected for Link Object -> " + link.toString());
                 e.printStackTrace();
             }
         }
+
+        while (true) {
+            if (executorService.getActiveCount() == 0 && executorService.getQueue().isEmpty()) {
+                break;
+            }
+
+            try {
+                Thread.sleep(100); // Sleep for a short period before checking again
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("Waiting thread was interrupted");
+                break;
+            }
+        }
+
         log.info("ALL REQUESTS DONE");
 //        executorService.shutdown();
 //        try {
