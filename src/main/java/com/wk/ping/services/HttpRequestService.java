@@ -19,14 +19,15 @@ public class HttpRequestService {
 
     private final LinkService linkService;
 
-    private final RestTemplate restTemplate;
+//    private final RestTemplate restTemplate;
 
-    public HttpRequestService(LinkService linkService, RestTemplate restTemplate) {
+    public HttpRequestService(LinkService linkService) {
         this.linkService = linkService;
-        this.restTemplate = restTemplate;
+//        this.restTemplate = restTemplate;
     }
 
     public void makeRequest(Link link) {
+        RestTemplate restTemplate = new RestTemplate();
         long requestStartTime = System.currentTimeMillis();
         logger.info("sending ping request, multithreaded version");
         String l = link.getLink();

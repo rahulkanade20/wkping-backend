@@ -49,7 +49,9 @@ public class ScheduledTasks {
         }
 
         while (true) {
+            log.info("waiting for all tasks and queue to be empty");
             if (executorService.getActiveCount() == 0 && executorService.getQueue().isEmpty()) {
+                log.info("exiting infinite while loop");
                 break;
             }
 
