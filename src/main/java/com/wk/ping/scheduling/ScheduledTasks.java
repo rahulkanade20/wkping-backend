@@ -56,6 +56,9 @@ public class ScheduledTasks {
         } catch (HttpServerErrorException e) {
             System.out.println("Catch block" + e.getStatusCode().value());
             return e.getStatusCode().value();
+        } catch (Exception e) {
+            System.out.println("Catch block with some other exception");
+            return -1;
         }
         System.out.println("make Call" + response.getStatusCode().value());
         return response.getStatusCode().value();
