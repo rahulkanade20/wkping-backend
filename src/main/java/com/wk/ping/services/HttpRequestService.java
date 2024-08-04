@@ -44,6 +44,9 @@ public class HttpRequestService {
             System.out.println("Id is " + link.getId() + "Catch block" + e.getStatusCode().value());
             logger.error("Error while making call to url " + e.getMessage());
             responseCode = e.getStatusCode().value();
+        } catch (Exception e) {
+            logger.error("Unknown exception while making call to endpoint");
+            responseCode = -1;
         }
         logger.info("Id is " + link.getId() + "Out of restTemplate logic");
         link.setStatus_code(responseCode);

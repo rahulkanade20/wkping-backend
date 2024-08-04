@@ -1,7 +1,6 @@
 package com.wk.ping.scheduling;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -30,10 +29,10 @@ public class ScheduledTasks {
         log.info("ScheduledTasksConstructorCalled");
         this.linkService = linkService;
         this.httpRequestService = httpRequestService;
-        this.executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
+        this.executorService = new ThreadPoolExecutor(3, 5, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
     }
 
-    @Scheduled(fixedRate = 120000)
+    @Scheduled(fixedRate = 15000)
     public void updatePingTimeMultiThreaded() {
         List<Link> allLinks = linkService.getAllLinks();
         for(Link link : allLinks) {
@@ -45,24 +44,28 @@ public class ScheduledTasks {
             } catch(RejectedExecutionException e) {
                 log.error("Task rejected. All threads busy, waiting queue full " + "Rejected for Link Object -> " + link.toString());
                 e.printStackTrace();
+            } catch(Exception e) {
+                log.error("Unknown exception while task execution");
+                e.printStackTrace();
             }
         }
 
-        while (true) {
-            log.info("waiting for all tasks and queue to be empty");
-            if (executorService.getActiveCount() == 0 && executorService.getQueue().isEmpty()) {
-                log.info("exiting infinite while loop");
-                break;
-            }
-
-            try {
-                Thread.sleep(100); // Sleep for a short period before checking again
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.err.println("Waiting thread was interrupted");
-                break;
-            }
-        }
+//        while (true) {
+//            log.info("waiting for all tasks and queue to be empty");
+//            if (executorService.getActiveCount() == 0 && executorService.getQueue().isEmpty()) {
+//                log.info("exiting infinite while loop");
+//                break;
+//            }
+//
+//            try {
+//                Thread.sleep(100); // Sleep for a short period before checking again
+//                log.info("Sleeping for 100 milliseconds");
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//                System.err.println("Waiting thread was interrupted");
+//                break;
+//            }
+//        }
 
         log.info("ALL REQUESTS DONE");
 //        executorService.shutdown();

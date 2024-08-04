@@ -9,6 +9,7 @@ import com.wk.ping.models.Link;
 import com.wk.ping.models.Team;
 import com.wk.ping.repository.LinkRepository;
 import com.wk.ping.repository.TeamRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,6 +23,7 @@ public class LinkService {
         this.teamRepository = teamRepository;
     }
 
+    @Cacheable(value = "Cache1", key = "#root.methodName")
     public List<Link> getAllLinks() {
         List<Link> links = new ArrayList<>();
         linkRepository.findAll().forEach(l -> links.add(l));

@@ -8,6 +8,7 @@ import com.wk.ping.dto.TeamRegDTO;
 import com.wk.ping.models.Link;
 import com.wk.ping.models.Team;
 import com.wk.ping.repository.TeamRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,6 +25,7 @@ public class TeamService {
         return teams;
     }
 
+    @Cacheable(value = "Cache1", key = "#id")
     public Optional<Team> getTeam(Long id) {
         return teamRepository.findById(id);
     }

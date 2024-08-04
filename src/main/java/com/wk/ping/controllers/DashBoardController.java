@@ -42,7 +42,7 @@ public class DashBoardController {
         long requestStartTime = System.currentTimeMillis();
         List<Link> allLinks = linkService.getAllLinks();
         long requestEndTime = System.currentTimeMillis();
-        logger.info("Total time required for fetching all data for dashboard: " + (requestEndTime - requestStartTime));
+        logger.info("Total time (in milliseconds) required for fetching all data for dashboard: " + (requestEndTime - requestStartTime));
         List<UIData> data = new ArrayList<>();
         for(Link link : allLinks) {
             String teamName = "";
@@ -52,20 +52,6 @@ public class DashBoardController {
                 teamName = t.get().getName();
             }
             int statusCode = link.getStatus_code();
-//            if(statusCode == 1) {
-//                status = "UP";
-//            } else if (statusCode == -1) {
-//                status = "DOWN";
-//            } else if(statusCode == 0) {
-//                status = "UNKNOWN";
-//            }
-//            if(statusCode >= 200 && statusCode<300) {
-//                status = "UP";
-//            } else if (statusCode >= 500 && statusCode<600) {
-//                status = "DOWN";
-//            } else {
-//                status = "UNKNOWN";
-//            }
             if(statusCode == 200) {
                 status = "HEALTHY";
             } else if(statusCode == 0) {
