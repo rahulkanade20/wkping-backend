@@ -32,7 +32,7 @@ public class ScheduledTasks {
         this.executorService = new ThreadPoolExecutor(3, 5, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
     }
 
-    @Scheduled(fixedRate = 15000)
+    @Scheduled(fixedRate = 60000)
     public void updatePingTimeMultiThreaded() {
         List<Link> allLinks = linkService.getAllLinks();
         for(Link link : allLinks) {
@@ -48,39 +48,13 @@ public class ScheduledTasks {
                 log.error("Unknown exception while task execution");
                 e.printStackTrace();
             }
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                log.error("Interrupted exception in main thread sleep");
+            }
         }
-
-//        while (true) {
-//            log.info("waiting for all tasks and queue to be empty");
-//            if (executorService.getActiveCount() == 0 && executorService.getQueue().isEmpty()) {
-//                log.info("exiting infinite while loop");
-//                break;
-//            }
-//
-//            try {
-//                Thread.sleep(100); // Sleep for a short period before checking again
-//                log.info("Sleeping for 100 milliseconds");
-//            } catch (InterruptedException e) {
-//                Thread.currentThread().interrupt();
-//                System.err.println("Waiting thread was interrupted");
-//                break;
-//            }
-//        }
-
         log.info("ALL REQUESTS DONE");
-//        executorService.shutdown();
-//        try {
-//            if(!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-//                executorService.shutdownNow();
-//            }
-//        } catch (InterruptedException e) {
-//            Thread.currentThread().interrupt();
-//        } finally {
-//            if(!executorService.isTerminated()) {
-//                log.warn("Some threads/tasks not yet terminated, executing force shutdown");
-//            }
-//            executorService.shutdownNow();
-//        }
     }
 
 //    @Scheduled(fixedRate = 20000)
