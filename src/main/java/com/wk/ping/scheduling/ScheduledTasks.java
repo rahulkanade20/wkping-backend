@@ -49,7 +49,7 @@ public class ScheduledTasks {
                 e.printStackTrace();
             }
             try {
-                Thread.sleep(50);
+                Thread.sleep(150);
             } catch (InterruptedException e) {
                 log.error("Interrupted exception in main thread sleep");
             }
