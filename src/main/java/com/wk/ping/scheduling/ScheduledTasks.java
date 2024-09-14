@@ -2,6 +2,7 @@ package com.wk.ping.scheduling;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.wk.ping.models.Link;
 import com.wk.ping.services.LinkService;
@@ -28,7 +29,7 @@ public class ScheduledTasks {
         this.restTemplate = restTemplate;
     }
 
-    @Scheduled(fixedRate = 20000)
+    @Scheduled(fixedRate = 10, timeUnit = TimeUnit.MINUTES)
     public void updatePingTime() {
         List<Link> allLinks = linkService.getAllLinks();
         System.out.println("Ping started");
