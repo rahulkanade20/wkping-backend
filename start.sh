@@ -14,4 +14,4 @@ docker compose down
 
 docker pull registry.gitlab.com/monitoring-app1/wkping-backend:latest && docker-compose up -d
 
-docker pull registry.gitlab.com/monitoring-app1/wkping-frontend:latest && docker run -d --name wkping-frontend-app -p 3000:3000 registry.gitlab.com/monitoring-app1/wkping-frontend:latest
+docker pull registry.gitlab.com/monitoring-app1/wkping-frontend:latest && docker run -d --name wkping-frontend-app -p 80:3000 registry.gitlab.com/monitoring-app1/wkping-frontend:latest
