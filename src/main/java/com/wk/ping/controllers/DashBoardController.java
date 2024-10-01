@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value="/fetchData")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "${front_end_url}")
 public class DashBoardController {
 
     private static final Logger logger = LoggerFactory.getLogger(DashBoardController.class);

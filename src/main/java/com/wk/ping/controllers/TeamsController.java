@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value="/teams")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "${front_end_url}")
 public class TeamsController {
     private final TeamService teamService;
 
