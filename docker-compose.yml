@@ -11,7 +11,6 @@ services:
       POSTGRES_DB: wkping
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      IP_ADDRESS: ${IP_ADDRESS}
 
   spring-boot-app:
     image:  registry.gitlab.com/monitoring-app1/wkping-backend:latest
@@ -23,6 +22,8 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+    environment:
+      - IP_ADDRESS=${IP_ADDRESS}
 
 volumes:
   postgres-data:
