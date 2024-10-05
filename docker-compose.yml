@@ -24,7 +24,6 @@ services:
       - postgres
     environment:
       - IP_ADDRESS=${IP_ADDRESS}
-      - PORT=${PORT}
 
 volumes:
   postgres-data:
