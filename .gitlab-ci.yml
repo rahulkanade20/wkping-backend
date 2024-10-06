@@ -31,6 +31,7 @@ deploy:
   stage: deploy
   script:
     - echo "Deploying the application..."
+    - mkdir -p ~/.ssh
     - ssh-keyscan -H $AWS_IP_ADDRESS >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
