@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value="/links")
-@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin(origins = {"${front_end_url}", "http://127.0.0.1:3000", "http://localhost:3000"})
 public class LinksController {
     private final LinkService linkService;
 

@@ -29,6 +29,8 @@ services:
     depends_on:
       - postgres
       - redis
+    environment:
+      - IP_ADDRESS=${IP_ADDRESS}
 
 volumes:
   postgres-data:
