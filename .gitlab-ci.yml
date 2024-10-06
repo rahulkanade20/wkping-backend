@@ -34,7 +34,7 @@ deploy:
     - mkdir -p ~/.ssh
     - ssh-keyscan -H $AWS_IP_ADDRESS >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - eval $(ssh-agent)
     - ssh-add ~/.ssh/id_rsa
