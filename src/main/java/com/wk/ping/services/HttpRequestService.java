@@ -35,6 +35,7 @@ public class HttpRequestService {
         ResponseEntity<String> response;
         int responseCode;
         logger.info("Id is " + link.getId() + " just before try block");
+        long reqHitStartTime = System.currentTimeMillis();
         try {
             logger.info("Id is " + link.getId() + " inside try just before rest template call");
             response = restTemplate.exchange(l, HttpMethod.GET, null, String.class);
@@ -44,11 +45,20 @@ public class HttpRequestService {
             System.out.println("Id is " + link.getId() + "Catch block" + e.getStatusCode().value());
             logger.error("Error while making call to url " + e.getMessage());
             responseCode = e.getStatusCode().value();
+        } catch (Exception e) {
+//            e.printStackTrace();
+            logger.error("Unknown exception while making call to endpoint");
+            responseCode = -1;
         }
+        long reqHitEndTime = System.currentTimeMillis();
+        logger.info("Time required to make request - " + (reqHitEndTime - reqHitStartTime));
         logger.info("Id is " + link.getId() + "Out of restTemplate logic");
+        long updateInDatabaseStartTime = System.currentTimeMillis();
         link.setStatus_code(responseCode);
         link.setLastPingTime(LocalDateTime.now());
         linkService.updateLink(link);
+        long updateInDatabaseEndTime = System.currentTimeMillis();
+        logger.info("Time required to update row in database - " + (updateInDatabaseEndTime - updateInDatabaseStartTime));
         logger.info("Id is " + link.getId() + "Updation done");
         long requestEndTime = System.currentTimeMillis();
         logger.info("Id is " + link.getId() + "Total time required by thread is: " + (requestEndTime - requestStartTime));
