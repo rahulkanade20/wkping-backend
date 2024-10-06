@@ -36,6 +36,7 @@ deploy:
     - chmod 644 ~/.ssh/known_hosts
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
+    - eval $(ssh-agent)
     - ssh-add ~/.ssh/id_rsa
     - ssh ec2-user@$AWS_IP_ADDRESS "bash ./prod-start.sh"
     - rm ~/.ssh/id_rsa
