@@ -9,7 +9,6 @@ import com.wk.ping.models.Link;
 import com.wk.ping.models.Team;
 import com.wk.ping.repository.LinkRepository;
 import com.wk.ping.repository.TeamRepository;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -35,14 +34,14 @@ public class LinkService {
         return linkRepository.findById(id);
     }
 
-    @CacheEvict(value = "Cache1", key = "'getAllLinks'")
+//    @CacheEvict(value = "Cache1", key = "'getAllLinks'")
     public void addLink(Link l) {
         l.setLastPingTime(null);
         l.setStatus_code(0);
         linkRepository.save(l);
     }
 
-    @CacheEvict(value = "Cache1", key = "'getAllLinks'")
+//    @CacheEvict(value = "Cache1", key = "'getAllLinks'")
     public void addLinkByTeamName(TeamRegDTO teamRegDTO) {
         Link l = new Link();
         l.setLastPingTime(null);
@@ -58,12 +57,8 @@ public class LinkService {
         linkRepository.save(l);
     }
 
-    @CacheEvict(value = "Cache1", key = "'getAllLinks'")
-    public void evictAllLinksCache() {
 
-    }
-
-    @CacheEvict(value = "Cache1", key = "'getAllLinks'")
+//    @CacheEvict(value = "Cache1", key = "'getAllLinks'")
     public void deleteLink(Long id) {
         linkRepository.deleteById(id);
     }
