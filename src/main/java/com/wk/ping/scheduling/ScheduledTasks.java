@@ -29,80 +29,36 @@ public class ScheduledTasks {
         log.info("ScheduledTasksConstructorCalled");
         this.linkService = linkService;
         this.httpRequestService = httpRequestService;
-        this.executorService = new ThreadPoolExecutor(3, 5, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
+        this.executorService = new ThreadPoolExecutor(
+            10,  // corePoolSize: More threads for better throughput
+            20,  // maximumPoolSize: Can scale up during peak load
+            60L, // keepAliveTime: Keep extra threads alive for 1 minute
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(1000), // Larger queue to handle more concurrent requests
+            Executors.defaultThreadFactory(),
+            new ThreadPoolExecutor.CallerRunsPolicy() // Better rejection policy - runs in caller thread instead of throwing exception
+        );
     }
 
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     public void updatePingTimeMultiThreaded() {
         List<Link> allLinks = linkService.getAllLinks();
+        log.info("Starting to ping {} links", allLinks.size());
         for(Link link : allLinks) {
             try {
                 executorService.submit(() -> {
                     httpRequestService.makeRequest(link);
-                    log.info("end of runnable task");
+                    log.debug("Completed ping for: {}", link.getLink());
                 });
             } catch(RejectedExecutionException e) {
-                log.error("Task rejected. All threads busy, waiting queue full " + "Rejected for Link Object -> " + link.toString());
+                log.error("Task rejected for Link: {} - Queue might be full", link.toString());
                 e.printStackTrace();
             } catch(Exception e) {
-                log.error("Unknown exception while task execution");
+                log.error("Unknown exception while submitting ping task for link: {}", link.toString());
                 e.printStackTrace();
             }
-            try {
-                Thread.sleep(150);
-            } catch (InterruptedException e) {
-                log.error("Interrupted exception in main thread sleep");
-            }
         }
-        log.info("ALL REQUESTS DONE");
+        log.info("ALL PING TASKS SUBMITTED - {} tasks in queue, {} active threads",
+                 executorService.getQueue().size(), executorService.getActiveCount());
     }
-
-//    @Scheduled(fixedRate = 20000)
-//    public void updatePingTime() {
-//        List<Link> allLinks = linkService.getAllLinks();
-////        System.out.println("Ping started");
-////        System.out.println("TESTING CI 1");
-//        for(Link link : allLinks) {
-////            String url = link.getLink();
-//////            int statusCode = Ping(url);
-////            int statusCode = makeCall(url);
-////            link.setStatus_code(statusCode);
-////            link.setLastPingTime(LocalDateTime.now());
-////            linkService.updateLink(link);
-//
-//            httpRequestService.makeRequest(link);
-//        }
-////        System.out.println("test log 1");
-////        System.out.println("Ping ended");
-//    }
-
-//    public int makeCall(String url) {
-//        ResponseEntity<String> response;
-//        try {
-//            response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
-//        } catch (HttpClientErrorException e) {
-//            System.out.println("Catch block" + e.getStatusCode().value());
-//            return e.getStatusCode().value();
-//        } catch (HttpServerErrorException e) {
-//            System.out.println("Catch block" + e.getStatusCode().value());
-//            return e.getStatusCode().value();
-//        }
-//        System.out.println("make Call" + response.getStatusCode().value());
-//        return response.getStatusCode().value();
-//    }
-
-//    public int Ping(String url) {
-//        try {
-//            ProcessBuilder processBuilder = new ProcessBuilder("ping", url);
-//            Process process = processBuilder.start();
-//            int exitCode = process.waitFor();
-//            if (exitCode == 0) {
-//                return 1; // ping success, service is up
-//            } else {
-//                return -1; // ping failed, service is down
-//            }
-//        } catch (Exception e) {
-//            return 0; // ping command failed to execute, service status unknown
-//        }
-//    }
 }

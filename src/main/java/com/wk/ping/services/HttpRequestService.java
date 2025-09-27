@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -18,49 +19,118 @@ public class HttpRequestService {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequestService.class);
 
     private final LinkService linkService;
+    private final RestTemplate restTemplate;
 
-//    private final RestTemplate restTemplate;
-
-    public HttpRequestService(LinkService linkService) {
+    public HttpRequestService(LinkService linkService, RestTemplate restTemplate) {
         this.linkService = linkService;
-//        this.restTemplate = restTemplate;
+        this.restTemplate = restTemplate;
     }
 
     public void makeRequest(Link link) {
-        RestTemplate restTemplate = new RestTemplate();
         long requestStartTime = System.currentTimeMillis();
-        logger.info("sending ping request, multithreaded version");
-        String l = link.getLink();
-        logger.info("Link Object is -> " + link.toString());
-        ResponseEntity<String> response;
-        int responseCode;
-        logger.info("Id is " + link.getId() + " just before try block");
-        long reqHitStartTime = System.currentTimeMillis();
+        logger.debug("Starting health check for link ID: {}, URL: {}", link.getId(), link.getLink());
+
+        int responseCode = performHealthCheck(link.getLink());
+
+        long requestEndTime = System.currentTimeMillis();
+        long totalTime = requestEndTime - requestStartTime;
+
+        updateLinkStatus(link, responseCode, totalTime);
+
+        logger.info("Health check completed for ID: {} - Status: {} - Time: {}ms",
+                   link.getId(), responseCode, totalTime);
+    }
+
+    private int performHealthCheck(String url) {
+        long reqStartTime = System.currentTimeMillis();
+
         try {
-            logger.info("Id is " + link.getId() + " inside try just before rest template call");
-            response = restTemplate.exchange(l, HttpMethod.GET, null, String.class);
-            logger.info("Id is " + link.getId() + " | " + "url is " + link.getLink() + " | " + "status is " + response.getStatusCode().value());
-            responseCode = response.getStatusCode().value();
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            System.out.println("Id is " + link.getId() + "Catch block" + e.getStatusCode().value());
-            logger.error("Error while making call to url " + e.getMessage());
-            responseCode = e.getStatusCode().value();
+            // Try HEAD request first (more efficient - no response body)
+            ResponseEntity<Void> response = restTemplate.exchange(
+                url, HttpMethod.HEAD, null, Void.class);
+
+            long reqEndTime = System.currentTimeMillis();
+            logger.debug("HEAD request successful for {} - Status: {} - Time: {}ms",
+                        url, response.getStatusCode().value(), (reqEndTime - reqStartTime));
+
+            return response.getStatusCode().value();
+
+        } catch (HttpClientErrorException httpClientException) {
+            // Check if server doesn't support HEAD method (405 Method Not Allowed, 400 Bad Request)
+            int statusCode = httpClientException.getStatusCode().value();
+            long reqEndTime = System.currentTimeMillis();
+
+            if (statusCode == 405 || statusCode == 501 || statusCode == 400) {
+                logger.debug("HEAD method not supported for {} - Status: {} - Trying GET fallback",
+                           url, statusCode);
+                return tryGetRequestFallback(url);
+            } else {
+                // Other 4xx errors (404, 401, 403, etc.) are valid responses
+                logger.debug("HTTP client error for {} - Status: {} - Time: {}ms",
+                            url, statusCode, (reqEndTime - reqStartTime));
+                return statusCode;
+            }
+
+        } catch (HttpServerErrorException httpServerException) {
+            // Check if server doesn't implement HEAD method (501 Not Implemented)
+            int statusCode = httpServerException.getStatusCode().value();
+            long reqEndTime = System.currentTimeMillis();
+
+            if (statusCode == 501) {
+                logger.debug("HEAD method not implemented for {} - Status: {} - Trying GET fallback",
+                           url, statusCode);
+                return tryGetRequestFallback(url);
+            } else {
+                // Other 5xx errors are valid server error responses
+                logger.debug("HTTP server error for {} - Status: {} - Time: {}ms",
+                            url, statusCode, (reqEndTime - reqStartTime));
+                return statusCode;
+            }
+
+        } catch (ResourceAccessException resourceException) {
+            // Connection timeout, DNS resolution failed, etc.
+            long reqEndTime = System.currentTimeMillis();
+            logger.warn("Connection failed for {} - Error: {} - Time: {}ms",
+                       url, resourceException.getMessage(), (reqEndTime - reqStartTime));
+
+            // Try fallback to GET request in case it's a network issue
+            return tryGetRequestFallback(url);
+
         } catch (Exception e) {
-//            e.printStackTrace();
-            logger.error("Unknown exception while making call to endpoint");
-            responseCode = -1;
+            // Unknown exception
+            long reqEndTime = System.currentTimeMillis();
+            logger.error("Unknown exception for {} - Error: {} - Time: {}ms",
+                        url, e.getMessage(), (reqEndTime - reqStartTime));
+            return -1; // Service unreachable
         }
-        long reqHitEndTime = System.currentTimeMillis();
-        logger.info("Time required to make request - " + (reqHitEndTime - reqHitStartTime));
-        logger.info("Id is " + link.getId() + "Out of restTemplate logic");
-        long updateInDatabaseStartTime = System.currentTimeMillis();
+    }
+
+    private int tryGetRequestFallback(String url) {
+        try {
+            logger.debug("Trying GET fallback for URL: {}", url);
+            ResponseEntity<String> response = restTemplate.exchange(
+                url, HttpMethod.GET, null, String.class);
+
+            logger.debug("GET fallback successful for {} - Status: {}", url, response.getStatusCode().value());
+            return response.getStatusCode().value();
+
+        } catch (HttpClientErrorException | HttpServerErrorException httpException) {
+            return httpException.getStatusCode().value();
+        } catch (Exception e) {
+            logger.error("GET fallback also failed for {} - Error: {}", url, e.getMessage());
+            return -1; // Completely unreachable
+        }
+    }
+
+    private void updateLinkStatus(Link link, int responseCode, long responseTime) {
+        long dbUpdateStartTime = System.currentTimeMillis();
+
         link.setStatus_code(responseCode);
         link.setLastPingTime(LocalDateTime.now());
         linkService.updateLink(link);
-        long updateInDatabaseEndTime = System.currentTimeMillis();
-        logger.info("Time required to update row in database - " + (updateInDatabaseEndTime - updateInDatabaseStartTime));
-        logger.info("Id is " + link.getId() + "Updation done");
-        long requestEndTime = System.currentTimeMillis();
-        logger.info("Id is " + link.getId() + "Total time required by thread is: " + (requestEndTime - requestStartTime));
+
+        long dbUpdateEndTime = System.currentTimeMillis();
+        logger.debug("Database update completed for ID: {} in {}ms",
+                    link.getId(), (dbUpdateEndTime - dbUpdateStartTime));
     }
 }
