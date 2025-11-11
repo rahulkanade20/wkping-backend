@@ -43,7 +43,6 @@ public class DashBoardController {
         List<Link> allLinks = linkService.getAllLinks();
         long requestEndTime = System.currentTimeMillis();
         logger.info("Total time (in milliseconds) required for fetching all data for dashboard: " + (requestEndTime - requestStartTime));
-        logger.info("Adding logs for CI / CD end to end testing");
         List<UIData> data = new ArrayList<>();
         for(Link link : allLinks) {
             String teamName = "";
