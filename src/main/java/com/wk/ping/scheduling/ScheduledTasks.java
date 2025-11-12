@@ -37,6 +37,12 @@ public class ScheduledTasks {
             new LinkedBlockingQueue<>(1000), // Larger queue to handle more concurrent requests
             Executors.defaultThreadFactory(),
             new ThreadPoolExecutor.CallerRunsPolicy() // Better rejection policy - runs in caller thread instead of throwing exception
+                // Key point:
+                // Main thread checks capacity on EACH submit
+                // If space available → Submit and continue
+                // If full → Block and execute
+                // Thread pool keeps working in background, freeing up space
+                // Main thread uses freed space immediately
         );
     }
 
